@@ -1,4 +1,7 @@
 #!/usr/bin/python3
+# Command checkip
+# version 1.0
+# by: Alexis Velázquez
 
 import json
 import requests
