@@ -79,7 +79,6 @@ def main():
         endpoint = AbuseAPI(API_KEY)
         ip_info = endpoint.get_ip_info(ip_address)
 
-        # Si no se obtuvo error de la API, se almacena el diccionario de claves recibido en 'data'
         print_ip_info(ip_info)
         
     except APIRequestError as error:
