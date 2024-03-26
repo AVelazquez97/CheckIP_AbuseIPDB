@@ -1,6 +1,6 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # Command checkip
-# version 1.0
+# version 1.1
 # by: Alexis Velázquez
 
 import json
@@ -49,18 +49,18 @@ class AbuseAPI:
         
         return response_data['data']
 
-def print_ip_info(ip_info):
-        print(f'\n{Color.BOLD}{Color.GREEN}IP:{Color.END} {Color.YELLOW}{Color.BOLD}{ip_info['ipAddress']}{Color.END}')
-        print(f'{Color.GREEN} - País:{Color.END} {Color.CYAN}{ip_info.get('countryName')}{Color.END}')
-        print(f'{Color.GREEN} - Código de País: {Color.END} {Color.CYAN}{ip_info.get('countryCode')}{Color.END}')
-        print(f'{Color.GREEN} - ¿Está en lista blanca?: {Color.END} {Color.CYAN}{ip_info.get('isWhitelisted')}{Color.END}')
-        print(f'{Color.GREEN} - Porcentaje de abuso: {Color.END} {Color.CYAN}{ip_info.get('abuseConfidenceScore')}%{Color.END}')
-        print(f'{Color.GREEN} - Total de reportes: {Color.END} {Color.CYAN}{ip_info.get('totalReports')}{Color.END}')
-        print(f'{Color.GREEN} - ISP: {Color.END} {Color.CYAN}{ip_info.get('isp')}{Color.END}')
-        print(f'{Color.GREEN} - Tipo de uso: {Color.END} {Color.CYAN}{ip_info.get('usageType')}{Color.END}')
-        print(f'{Color.GREEN} - Dominio: {Color.END} {Color.CYAN}{ip_info.get('domain')}{Color.END}')
-        print(f'{Color.GREEN} - Hostnames: {Color.END} {Color.CYAN}{ip_info.get('hostnames')}{Color.END}')
-        print(f'{Color.GREEN} - Última vez reportada: {Color.END} {Color.CYAN}{ip_info.get('lastReportedAt')}{Color.END}\n')
+def print_ip_info(ip_address, ip_info):
+        print(f'\n{Color.BOLD}{Color.GREEN}IP:{Color.END} {Color.YELLOW}{Color.BOLD}{ip_address}{Color.END}')
+        print(f'{Color.GREEN} - País:{Color.END} {Color.CYAN}{ip_info.get("countryName")}{Color.END}')
+        print(f'{Color.GREEN} - Código de País: {Color.END} {Color.CYAN}{ip_info.get("countryCode")}{Color.END}')
+        print(f'{Color.GREEN} - ¿Está en lista blanca?: {Color.END} {Color.CYAN}{ip_info.get("isWhitelisted")}{Color.END}')
+        print(f'{Color.GREEN} - Porcentaje de abuso: {Color.END} {Color.CYAN}{ip_info.get("abuseConfidenceScore")}%{Color.END}')
+        print(f'{Color.GREEN} - Total de reportes: {Color.END} {Color.CYAN}{ip_info.get("totalReports")}{Color.END}')
+        print(f'{Color.GREEN} - ISP: {Color.END} {Color.CYAN}{ip_info.get("isp")}{Color.END}')
+        print(f'{Color.GREEN} - Tipo de uso: {Color.END} {Color.CYAN}{ip_info.get("usageType")}{Color.END}')
+        print(f'{Color.GREEN} - Dominio: {Color.END} {Color.CYAN}{ip_info.get("domain")}{Color.END}')
+        print(f'{Color.GREEN} - Hostnames: {Color.END} {Color.CYAN}{ip_info.get("hostnames")}{Color.END}')
+        print(f'{Color.GREEN} - Última vez reportada: {Color.END} {Color.CYAN}{ip_info.get("lastReportedAt")}{Color.END}\n')
 
 def main():
     if len(sys.argv) != 2:
@@ -80,12 +80,12 @@ def main():
         ip_info = endpoint.get_ip_info(ip_address)
 
         # Si no se obtuvo error de la API, se almacena el diccionario de claves recibido en 'data'
-        print_ip_info(ip_info)
+        print_ip_info(ip_address, ip_info)
         
     except APIRequestError as error:
         for values in error.args[0]:
-            print(f'\n{Color.RED}Error:{Color.END} {Color.YELLOW}{values['detail']}{Color.END}')
-            print(f'{Color.RED}Código de estado:{Color.END} {Color.YELLOW}{values['status']}{Color.END}\n')
+            print(f'\n{Color.RED}Error:{Color.END} {Color.YELLOW}{values["detail"]}{Color.END}')
+            print(f'{Color.RED}Código de estado:{Color.END} {Color.YELLOW}{values["status"]}{Color.END}\n')
 
     except KeyError as e:
         print(f'\n{Color.RED}Error:{Color.END} {Color.YELLOW}La clave {e} no está presente en la respuesta JSON.{Color.END}')
