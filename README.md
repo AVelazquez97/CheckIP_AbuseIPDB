@@ -35,15 +35,19 @@ siguientes pasos:
 
    Esto devolverá todas las rutas que se encuentran agregadas al path, cada una separada por dos puntos de la siguiente.
 
-2. Mover el script para cualquiera de las rutas de los directorios que estén en el path, por ejemplo:
+2. Copiar el script para cualquiera de las rutas de los directorios que estén en el path, por ejemplo:
 
    `cp checkip.py /usr/local/bin/checkip`
 
-3. Luego, darle permiso de ejecución:
+3. Copiar el archivo **_.env_** que contiene la API_KEY al mismo directorio que el script:
+
+   `cp .env /usr/local/bin/`
+
+4. Luego, darle permiso de ejecución:
 
    `chmod +x /usr/local/bin/checkip`
 
-4. Por último, ejecutarlo con:
+5. Por último, ejecutarlo con:
 
    `checkip IP` -> Donde IP se debe remplazar por la IP que se desee consultar la info.
 
