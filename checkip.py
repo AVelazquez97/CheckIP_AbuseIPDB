@@ -4,45 +4,71 @@
 # by: Alexis Velázquez
 
 import json
-import requests
 import sys
+from requests import request
+from os import getenv
+from dotenv import load_dotenv
 
-API_KEY = "d99e5be0a9f432eac4211bcc4435ccc4fd47fcf97807b7e52cbe9eb5c731fa15b2e9862b7bdf4bcb"
+load_dotenv()
+API_KEY = getenv('API_KEY')
 
-# Excepción específica para tratar los errores que arroje la API
-class ApiException(Exception):
-    def __init__(self, errors):
-        super().__init__(errors)
-        self.errors = errors
+class Color:
+    CYAN = '\033[96m'
+    GREEN = '\033[92m'
+    RED = '\033[91m'
+    YELLOW = '\033[93m'
+    BOLD = '\033[1m'
+    END = '\033[0m'
 
-def get_api_data(ip_address):
-    url = 'https://api.abuseipdb.com/api/v2/check'
+class APIRequestError(Exception):
+    pass
 
-    querystring = {
-        'ipAddress': ip_address,
-        'maxAgeInDays': '90',
-        'verbose': True #Si se encuentra en True, se reciben el país y los reportes de la IP
-    }
+class AbuseAPI:
+    def __init__(self, api_key):
+        self.api_key = api_key
+        self.url='https://api.abuseipdb.com/api/v2/check'
+        self.headers = {
+            'Accept': 'application/json',
+            'Key': self.api_key
+        }
 
-    headers = {
-        'Accept': 'application/json',
-        'Key': API_KEY
-    }
+    def get_ip_info(self, ip_address):  
+        querystring = {
+            'ipAddress': ip_address,
+            'maxAgeInDays': '90',
+            'verbose': True  # Si se encuentra en True, se reciben el país y los reportes de la IP
+        }
 
-    response = requests.request(method='GET', url=url, headers=headers, params=querystring)
+        response = request(method='GET', url=self.url, headers=self.headers, params=querystring)
+        # Se parsea la respuesta JSON
+        response_data = json.loads(response.text)
+        
+        # En caso de que se obtenga un error como respuesta de la API, se tira una excepción.
+        if 'errors' in response_data:
+            raise APIRequestError(response_data['errors'])
+        
+        return response_data['data']
 
-    # Parsear la respuesta JSON
-    return json.loads(response.text)
+def print_ip_info(ip_info):
+        print(f'\n{Color.BOLD}{Color.GREEN}IP:{Color.END} {Color.YELLOW}{Color.BOLD}{ip_info['ipAddress']}{Color.END}')
+        print(f'{Color.GREEN} - País:{Color.END} {Color.CYAN}{ip_info.get('countryName')}{Color.END}')
+        print(f'{Color.GREEN} - Código de País: {Color.END} {Color.CYAN}{ip_info.get('countryCode')}{Color.END}')
+        print(f'{Color.GREEN} - ¿Está en lista blanca?: {Color.END} {Color.CYAN}{ip_info.get('isWhitelisted')}{Color.END}')
+        print(f'{Color.GREEN} - Porcentaje de abuso: {Color.END} {Color.CYAN}{ip_info.get('abuseConfidenceScore')}%{Color.END}')
+        print(f'{Color.GREEN} - Total de reportes: {Color.END} {Color.CYAN}{ip_info.get('totalReports')}{Color.END}')
+        print(f'{Color.GREEN} - ISP: {Color.END} {Color.CYAN}{ip_info.get('isp')}{Color.END}')
+        print(f'{Color.GREEN} - Tipo de uso: {Color.END} {Color.CYAN}{ip_info.get('usageType')}{Color.END}')
+        print(f'{Color.GREEN} - Dominio: {Color.END} {Color.CYAN}{ip_info.get('domain')}{Color.END}')
+        print(f'{Color.GREEN} - Hostnames: {Color.END} {Color.CYAN}{ip_info.get('hostnames')}{Color.END}')
+        print(f'{Color.GREEN} - Última vez reportada: {Color.END} {Color.CYAN}{ip_info.get('lastReportedAt')}{Color.END}\n')
 
 def main():
-    # Definir los parámetros
-    #ip_address = "190.134.121.102"
-
     if len(sys.argv) != 2:
-        print("Uso: ./checkip.py <ip_address>")
+        print(f'\n{Color.GREEN}No has ingresado ninguna IP.{Color.END}')
+        print(f'{Color.GREEN}Uso:{Color.END} {Color.CYAN}./checkip.py <ip_address>{Color.END}\n')
         sys.exit(1)
     
-    # Se obtiene la dirección IP del argumento de línea de comandos
+    # Se obtiene la dirección IP del argumento recibido por línea de comandos
     ip_address = sys.argv[1]
 
     '''
@@ -50,56 +76,24 @@ def main():
     se muestra la información deseada.
     '''
     try:
-        parsed_data = get_api_data(ip_address)
+        endpoint = AbuseAPI(API_KEY)
+        ip_info = endpoint.get_ip_info(ip_address)
 
-        # En caso de que se obtenga un error como respuesta de la API, se tira una excepción.
-        if "errors" in parsed_data:
-            errors = parsed_data.get("errors", [])
-            raise ApiException(errors)  
-
-        # Es posible mostrar la response completa en formato json de esta forma
-        # print(json.dumps(parsed_data, sort_keys=True, indent=4))
-
-        # Si no se obtuvo error de la API, se almacena el diccionario de claves recibido en "data"
-        data = parsed_data.get("data")
-
-        country_name = data.get("countryName")
-        country_code = data.get("countryCode")
-        is_whitelisted = data.get("isWhitelisted")
-        abuse_confidence_score = data.get("abuseConfidenceScore")
-        total_reports = data.get("totalReports")
-        isp = data.get("isp")
-        usage_type = data.get("usageType")
-        domain = data.get("domain")
-        hostnames = data.get("hostnames")
-        last_reported_at = data.get("lastReportedAt")
-        #reports = data.get("reports")
-
-    except ApiException as api_exception:
-        for error in api_exception.errors:
-            detail_error = error.get("detail")
-            status = error.get("status")
-            print(f"Error: {detail_error}")
-            print(f"Código de estado: {status}")
+        # Si no se obtuvo error de la API, se almacena el diccionario de claves recibido en 'data'
+        print_ip_info(ip_info)
+        
+    except APIRequestError as error:
+        for values in error.args[0]:
+            print(f'\n{Color.RED}Error:{Color.END} {Color.YELLOW}{values['detail']}{Color.END}')
+            print(f'{Color.RED}Código de estado:{Color.END} {Color.YELLOW}{values['status']}{Color.END}\n')
 
     except KeyError as e:
-        print(f"Error: La clave {e} no está presente en la respuesta JSON.")
-    
-    else:
-        # Imprimir la información
-        print(f"\nIP: {ip_address}")
-        print(f" - País: {country_name}")
-        print(f" - Código de País: {country_code}")
-        print(f" - ¿Está en lista blanca?: {is_whitelisted}")
-        print(f" - Porcentaje de abuso: {abuse_confidence_score}%")
-        print(f" - Total de reportes: {total_reports}")
-        print(f" - ISP: {isp}")
-        print(f" - Tipo de uso: {usage_type}")
-        print(f" - Dominio: {domain}")
-        print(f" - Hostnames: {hostnames}")
-        print(f" - Última vez reportada: {last_reported_at}")
-        #print(f" - Reportes: {reports}")
+        print(f'\n{Color.RED}Error:{Color.END} {Color.YELLOW}La clave {e} no está presente en la respuesta JSON.{Color.END}')
 
+    except Exception as e:
+        print(f'\n{Color.RED}Error inesperado:{Color.END}: {Color.YELLOW}{e}{Color.END}')
+
+    
 if __name__ == '__main__':
     try:
         main()
