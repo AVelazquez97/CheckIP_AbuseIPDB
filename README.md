@@ -51,3 +51,20 @@ siguientes pasos:
 
    `checkip IP` -> Donde IP se debe remplazar por la IP que se desee consultar la info.
 
+### Algunos ejemplos de los resultados obtenidos al ejecutar el script:
+
+- Sin cargar la API_KEY en archivo .env: 
+   
+   ![Sin autenticar](https://raw.githubusercontent.com/AVelazquez97/CheckIP_AbuseIPDB/main/img/missing_key_example.png)
+
+- Con argumento vacío: 
+
+   ![Argumento vacío](https://raw.githubusercontent.com/AVelazquez97/CheckIP_AbuseIPDB/main/img/empty_example.png)
+
+- Con una IP inválida: 
+   
+   ![IP inválida](https://raw.githubusercontent.com/AVelazquez97/CheckIP_AbuseIPDB/main/img/bad_req_example.png)
+
+- Con una IP válida: 
+   
+   ![IP válida](https://raw.githubusercontent.com/AVelazquez97/CheckIP_AbuseIPDB/main/img/success_example.png)
