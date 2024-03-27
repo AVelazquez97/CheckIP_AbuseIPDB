@@ -65,7 +65,7 @@ def print_ip_info(ip_address, ip_info):
 def main():
     if len(sys.argv) != 2:
         print(f'\n{Color.GREEN}No has ingresado ninguna IP.{Color.END}')
-        print(f'{Color.GREEN}Uso:{Color.END} {Color.CYAN}./checkip.py <ip_address>{Color.END}\n')
+        print(f'{Color.GREEN}Uso:{Color.END} {Color.CYAN}checkip <ip_address>{Color.END}\n')
         sys.exit(1)
     
     # Se obtiene la dirección IP del argumento recibido por línea de comandos
